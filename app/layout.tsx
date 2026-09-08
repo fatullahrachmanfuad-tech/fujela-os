@@ -1,13 +1,24 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Link from "next/link";
+import Script from "next/script";
 
 const inter = Inter({ subsets: ["latin"] });
 
+// Pendaftaran Manifest PWA
 export const metadata: Metadata = {
   title: "FUJELA OS",
   description: "Intelligent Personal Life Operating System",
+  manifest: "/manifest.json",
+};
+
+// Pengaturan Warna Tema PWA
+export const viewport: Viewport = {
+  themeColor: "#000000",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
 };
 
 export default function RootLayout({
@@ -19,8 +30,7 @@ export default function RootLayout({
     <html lang="id">
       <body className={inter.className}>
         <div className="max-w-4xl mx-auto p-4 pt-8">
-          {/* NAVIGASI GLOBAL (Hanya muncul satu kali di sini) */}
-          <nav className="flex space-x-6 mb-8 border-b pb-4 overflow-x-auto">
+          <nav className="flex space-x-6 mb-8 border-b pb-4 overflow-x-auto scrollbar-hide">
             <Link href="/today" className="font-medium text-gray-500 hover:text-black whitespace-nowrap">Hari Ini</Link>
             <Link href="/dashboard" className="font-medium text-gray-500 hover:text-black whitespace-nowrap">Manajemen</Link>
             <Link href="/goals" className="font-medium text-gray-500 hover:text-black whitespace-nowrap">Goals</Link>
@@ -33,8 +43,21 @@ export default function RootLayout({
           </nav>
         </div>
         
-        {/* KONTEN HALAMAN */}
         <main>{children}</main>
+
+        {/* Registrasi Service Worker PWA */}
+        <Script id="register-sw" strategy="afterInteractive">
+          {`
+            if ('serviceWorker' in navigator) {
+              window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/sw.js').then(
+                  function(registration) { console.log('PWA SW terdaftar: ', registration.scope); },
+                  function(err) { console.log('PWA SW gagal: ', err); }
+                );
+              });
+            }
+          `}
+        </Script>
       </body>
     </html>
   );
